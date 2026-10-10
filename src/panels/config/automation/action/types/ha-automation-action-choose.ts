@@ -25,6 +25,8 @@ export class HaChooseAction extends LitElement implements ActionElement {
 
   @property({ type: Boolean }) public indent = false;
 
+  @property({ attribute: false }) public domain?: "automation" | "script";
+
   @state() private _showDefault = false;
 
   @query("ha-automation-option") private _optionElement?: HaAutomationOption;
@@ -50,6 +52,7 @@ export class HaChooseAction extends LitElement implements ActionElement {
         .narrow=${this.narrow}
         .optionsInSidebar=${this.indent}
         .showDefaultActions=${this._showDefault || !!action.default}
+        .domain=${this.domain}
         @show-default-actions=${this._addDefault}
       ></ha-automation-option>
 
@@ -62,6 +65,7 @@ export class HaChooseAction extends LitElement implements ActionElement {
                 .disabled=${this.disabled}
                 .hass=${this.hass}
                 .optionsInSidebar=${this.indent}
+                .domain=${this.domain}
                 @value-changed=${this._defaultChanged}
               ></ha-automation-option-row>
             `

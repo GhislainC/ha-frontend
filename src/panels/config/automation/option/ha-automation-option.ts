@@ -23,6 +23,8 @@ export default class HaAutomationOption extends AutomationSortableListMixin<Opti
   @property({ type: Boolean, attribute: "show-default" })
   public showDefaultActions = false;
 
+  @property({ attribute: false }) public domain?: "automation" | "script";
+
   @queryAll("ha-automation-option-row")
   private _optionRowElements?: HaAutomationOptionRow[];
 
@@ -59,6 +61,7 @@ export default class HaAutomationOption extends AutomationSortableListMixin<Opti
                 .option=${option}
                 .narrow=${this.narrow}
                 .disabled=${this.disabled}
+                .domain=${this.domain}
                 @duplicate=${this.duplicateItem}
                 @move-down=${this.moveDown}
                 @move-up=${this.moveUp}

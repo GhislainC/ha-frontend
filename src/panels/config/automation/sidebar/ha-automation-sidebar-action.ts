@@ -164,6 +164,13 @@ export default class HaAutomationSidebarAction extends LitElement {
                 "ui.panel.config.automation.editor.actions.continue_on_error"
               )}`
             : nothing
+        }${
+          (this.config.config.action as NonConditionAction).permission_check ===
+          false
+            ? `${STRINGS_SEPARATOR_DOT}${this.hass.localize(
+                "ui.panel.config.script.editor.actions.permission_check_bypassed"
+              )}`
+            : nothing
         }</span
       >
 
@@ -338,6 +345,34 @@ export default class HaAutomationSidebarAction extends LitElement {
               <wa-divider slot="menu-items"></wa-divider>`
           : nothing
       }
+      ${
+        this.config.permissionCheck
+          ? html`<ha-dropdown-item
+                slot="menu-items"
+                value="permission_check"
+                .disabled=${this.disabled}
+              >
+                <ha-svg-icon
+                  slot="icon"
+                  .path=${
+                    (this.config.config.action as NonConditionAction)
+                      .permission_check !== false
+                      ? mdiCheckboxOutline
+                      : mdiCheckboxBlankOutline
+                  }
+                ></ha-svg-icon>
+                <div class="overflow-label">
+                  ${this.hass.localize(
+                    `ui.panel.config.script.editor.actions.permission_check`
+                  )}
+                  <span
+                    class="shortcut-placeholder ${isMac ? "mac" : ""}"
+                  ></span>
+                </div>
+              </ha-dropdown-item>
+              <wa-divider slot="menu-items"></wa-divider>`
+          : nothing
+      }
       <ha-dropdown-item
         slot="menu-items"
         value="delete"
@@ -482,6 +517,9 @@ export default class HaAutomationSidebarAction extends LitElement {
         break;
       case "continue_on_error":
         this.config.continueOnError();
+        break;
+      case "permission_check":
+        this.config.permissionCheck?.();
         break;
       case "delete":
         this.config.delete();

@@ -1058,6 +1058,7 @@ export class HaAutomationEditor extends AutomationScriptEditorMixin<AutomationCo
     return new Promise((resolve) => {
       showAutomationModeDialog(this, {
         config: this.config!,
+        domain: "automation",
         updateConfig: (config) => {
           this.config = config;
           this._updateDirtyState({

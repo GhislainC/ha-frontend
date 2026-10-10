@@ -17,6 +17,7 @@ import {
   mdiPlaylistEdit,
   mdiPlusCircleMultipleOutline,
   mdiRenameBox,
+  mdiShieldOff,
   mdiStopCircleOutline,
 } from "@mdi/js";
 import deepClone from "deep-clone-simple";
@@ -176,6 +177,8 @@ export default class HaAutomationActionRow extends LitElement {
 
   @property({ type: Boolean, attribute: "sort-selected" })
   public sortSelected = false;
+
+  @property({ attribute: false }) public domain?: "automation" | "script";
 
   @storage({
     key: "automationClipboard",
@@ -451,6 +454,19 @@ export default class HaAutomationActionRow extends LitElement {
                 </ha-tooltip>`
             : nothing
         }
+        ${
+          (this.action as NonConditionAction).permission_check === false
+            ? html`<ha-svg-icon
+                  id="svg-permission-check-icon"
+                  .path=${mdiShieldOff}
+                ></ha-svg-icon>
+                <ha-tooltip for="svg-permission-check-icon">
+                  ${this.hass.localize(
+                    "ui.panel.config.script.editor.actions.permission_check_bypass_description"
+                  )}
+                </ha-tooltip>`
+            : nothing
+        }
       </h3>
       <ha-automation-row-event-chip
         .show=${this.action.enabled === false && !this._running}
@@ -657,6 +673,30 @@ export default class HaAutomationActionRow extends LitElement {
                 <wa-divider></wa-divider>`
             : nothing
         }
+        ${
+          this.domain === "script"
+            ? html`<ha-dropdown-item
+                  value="permission_check"
+                  .disabled=${this.disabled}
+                >
+                  <ha-svg-icon
+                    slot="icon"
+                    .path=${
+                      (this.action as NonConditionAction).permission_check !==
+                      false
+                        ? mdiCheckboxOutline
+                        : mdiCheckboxBlankOutline
+                    }
+                  ></ha-svg-icon>
+                  ${this._renderOverflowLabel(
+                    this.hass.localize(
+                      `ui.panel.config.script.editor.actions.permission_check`
+                    )
+                  )}
+                </ha-dropdown-item>
+                <wa-divider></wa-divider>`
+            : nothing
+        }
 
         <ha-dropdown-item
           value="delete"
@@ -704,6 +744,7 @@ export default class HaAutomationActionRow extends LitElement {
                 .yamlMode=${this._yamlMode}
                 .narrow=${this.narrow}
                 .uiSupported=${this._uiSupported(type!)}
+                .domain=${this.domain}
                 @ui-mode-not-available=${this._handleUiModeNotAvailable}
               ></ha-automation-action-editor>`
           : nothing
@@ -787,6 +828,7 @@ export default class HaAutomationActionRow extends LitElement {
               .uiSupported=${this._uiSupported(type!)}
               indent
               .selected=${this._selected}
+              .domain=${this.domain}
               @value-changed=${this._onValueChange}
             ></ha-automation-action-editor>`
           : nothing
@@ -873,6 +915,25 @@ export default class HaAutomationActionRow extends LitElement {
       this.openSidebar(value); // refresh sidebar
     }
 
+    if (this._yamlMode && !this.optionsInSidebar) {
+      this._actionEditor?.yamlEditor?.setValue(value);
+    }
+  };
+
+  private _permissionCheck = () => {
+    const value = { ...this.action };
+
+    if ((value as NonConditionAction).permission_check === false) {
+      delete (value as NonConditionAction).permission_check;
+    } else {
+      (value as NonConditionAction).permission_check = false;
+    }
+
+    fireEvent(this, "value-changed", { value });
+
+    if (this._selected && this.optionsInSidebar) {
+      this.openSidebar(value); // refresh sidebar
+    }
     if (this._yamlMode && !this.optionsInSidebar) {
       this._actionEditor?.yamlEditor?.setValue(value);
     }
@@ -1222,6 +1283,8 @@ export default class HaAutomationActionRow extends LitElement {
       },
       disable: this._onDisable,
       continueOnError: this._continueOnError,
+      permissionCheck:
+        this.domain === "script" ? this._permissionCheck : undefined,
       delete: this._onDelete,
       copy: this._copyAction,
       cut: this._cutAction,
@@ -1341,6 +1404,9 @@ export default class HaAutomationActionRow extends LitElement {
       case "continue_on_error":
         this._continueOnError();
         break;
+      case "permission_check":
+        this._permissionCheck();
+        break;
       case "delete":
         this._onDelete();
         break;
@@ -1351,10 +1417,12 @@ export default class HaAutomationActionRow extends LitElement {
     rowStyles,
     overflowStyles,
     css`
-      ha-svg-icon#svg-icon {
+      ha-svg-icon#svg-icon,
+      ha-svg-icon#svg-permission-check-icon {
         --icon-primary-color: var(--ha-color-fill-neutral-loud-active);
       }
-      ha-svg-icon#svg-icon:hover {
+      ha-svg-icon#svg-icon:hover,
+      ha-svg-icon#svg-permission-check-icon:hover {
         --icon-primary-color: var(--ha-color-fill-neutral-loud-hover);
       }
     `,

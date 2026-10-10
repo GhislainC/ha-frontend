@@ -40,6 +40,7 @@ export const baseActionStruct = object({
   alias: optional(string()),
   note: optional(string()),
   continue_on_error: optional(boolean()),
+  permission_check: optional(boolean()),
   enabled: optional(boolean()),
 });
 
@@ -88,6 +89,7 @@ export interface ManualScriptConfig {
   mode?: (typeof MODES)[number];
   max?: number;
   fields?: Fields;
+  permission_check?: boolean;
 }
 
 export interface BlueprintScriptConfig extends ManualScriptConfig {
@@ -113,6 +115,7 @@ interface BaseAction {
   alias?: string;
   note?: string;
   continue_on_error?: boolean;
+  permission_check?: boolean;
   enabled?: boolean;
 }
 

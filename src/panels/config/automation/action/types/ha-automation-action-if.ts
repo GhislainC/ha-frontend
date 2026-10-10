@@ -23,6 +23,8 @@ export class HaIfAction extends LitElement implements ActionElement {
 
   @property({ type: Boolean }) public indent = false;
 
+  @property({ attribute: false }) public domain?: "automation" | "script";
+
   @query("ha-automation-condition")
   private _conditionElement?: HaAutomationCondition;
 
@@ -66,6 +68,7 @@ export class HaIfAction extends LitElement implements ActionElement {
         .hass=${this.hass}
         .narrow=${this.narrow}
         .optionsInSidebar=${this.indent}
+        .domain=${this.domain}
       ></ha-automation-action>
       <h4>
         ${this.hass.localize(
@@ -79,6 +82,7 @@ export class HaIfAction extends LitElement implements ActionElement {
         .hass=${this.hass}
         .narrow=${this.narrow}
         .optionsInSidebar=${this.indent}
+        .domain=${this.domain}
       ></ha-automation-action>
     `;
   }

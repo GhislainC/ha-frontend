@@ -9,12 +9,14 @@ export interface AutomationModeDialog {
   config: AutomationConfig;
   updateConfig: (config: AutomationConfig) => void;
   onClose: () => void;
+  domain?: "automation";
 }
 
 export interface ScriptModeDialog {
   config: ScriptConfig;
   updateConfig: (config: ScriptConfig) => void;
   onClose: () => void;
+  domain?: "script";
 }
 
 export const showAutomationModeDialog = (

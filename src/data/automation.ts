@@ -739,6 +739,7 @@ export interface ActionSidebarConfig extends BaseSidebarConfig {
   rename: () => void;
   disable: () => void;
   continueOnError: () => void;
+  permissionCheck?: () => void;
   duplicate: () => void;
   cut: () => void;
   copy: () => void;

@@ -40,6 +40,8 @@ export default class HaAutomationAction extends AutomationSortableListMixin<Acti
 
   @property({ attribute: false }) public highlightedActions?: Action[];
 
+  @property({ attribute: false }) public domain?: "automation" | "script";
+
   @queryAll("ha-automation-action-row")
   private _actionRowElements?: HaAutomationActionRow[];
 
@@ -83,6 +85,7 @@ export default class HaAutomationAction extends AutomationSortableListMixin<Acti
                 .action=${action}
                 .narrow=${this.narrow}
                 .disabled=${this.disabled}
+                .domain=${this.domain}
                 @duplicate=${this.duplicateItem}
                 @paste=${this.pasteItem}
                 @insert-after=${this.insertAfter}

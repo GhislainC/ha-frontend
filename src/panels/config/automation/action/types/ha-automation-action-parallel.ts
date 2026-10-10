@@ -21,6 +21,8 @@ export class HaParallelAction extends LitElement implements ActionElement {
 
   @property({ type: Boolean }) public indent = false;
 
+  @property({ attribute: false }) public domain?: "automation" | "script";
+
   @query("ha-automation-action")
   private _actionElement?: HaAutomationAction;
 
@@ -41,6 +43,7 @@ export class HaParallelAction extends LitElement implements ActionElement {
         @value-changed=${this._actionsChanged}
         .hass=${this.hass}
         .optionsInSidebar=${this.indent}
+        .domain=${this.domain}
       ></ha-automation-action>
     `;
   }

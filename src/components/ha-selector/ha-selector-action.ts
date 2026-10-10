@@ -25,6 +25,8 @@ export class HaActionSelector extends LitElement {
 
   @property({ type: Boolean, reflect: true }) public disabled = false;
 
+  @property({ attribute: false }) public domain?: "automation" | "script";
+
   @state()
   @consume({ context: fullEntitiesContext, subscribe: true })
   _entityReg: EntityRegistryEntry[] | undefined;
@@ -56,6 +58,7 @@ export class HaActionSelector extends LitElement {
         .hass=${this.hass}
         .narrow=${this.narrow}
         .optionsInSidebar=${!!this.selector.action?.optionsInSidebar}
+        .domain=${this.domain || (this.selector.action as any)?.domain}
       ></ha-automation-action>
     `;
   }

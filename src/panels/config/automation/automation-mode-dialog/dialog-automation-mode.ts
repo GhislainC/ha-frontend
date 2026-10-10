@@ -9,6 +9,9 @@ import "../../../../components/ha-dialog";
 import "../../../../components/ha-dialog-footer";
 import "../../../../components/ha-icon-button";
 import "../../../../components/ha-select-box";
+import "../../../../components/ha-settings-row";
+import "../../../../components/ha-switch";
+import type { HaSwitch } from "../../../../components/ha-switch";
 import "../../../../components/input/ha-input";
 
 import type { HaInput } from "../../../../components/input/ha-input";
@@ -22,11 +25,15 @@ import { DirtyStateProviderMixin } from "../../../../mixins/dirty-state-provider
 import { haStyle, haStyleDialog } from "../../../../resources/styles";
 import type { HomeAssistant } from "../../../../types";
 import { documentationUrl } from "../../../../util/documentation-url";
-import type { AutomationModeDialog } from "./show-dialog-automation-mode";
+import type {
+  AutomationModeDialog,
+  ScriptModeDialog,
+} from "./show-dialog-automation-mode";
 
 interface AutomationModeState {
   mode: (typeof MODES)[number];
   max?: number;
+  permissionCheck?: boolean;
 }
 
 @customElement("ha-dialog-automation-mode")
@@ -38,22 +45,32 @@ class DialogAutomationMode
 
   @state() private _open = false;
 
-  @state() private _params?: AutomationModeDialog;
+  @state() private _params?: AutomationModeDialog | ScriptModeDialog;
 
   @state() private _newMode: (typeof MODES)[number] = AUTOMATION_DEFAULT_MODE;
 
   @state() private _newMax?: number;
 
-  public showDialog(params: AutomationModeDialog): void {
+  @state() private _newPermissionCheck = true;
+
+  public showDialog(params: AutomationModeDialog | ScriptModeDialog): void {
     this._open = true;
     this._params = params;
     this._newMode = params.config.mode || AUTOMATION_DEFAULT_MODE;
     this._newMax = isMaxMode(this._newMode)
       ? params.config.max || AUTOMATION_DEFAULT_MAX
       : undefined;
+    const isScript = params.domain === "script" || "sequence" in params.config;
+    this._newPermissionCheck = isScript
+      ? ((params.config as any).permission_check ?? true)
+      : true;
     this._initDirtyTracking(
       { type: "shallow" },
-      { mode: this._newMode, max: this._newMax }
+      {
+        mode: this._newMode,
+        max: this._newMax,
+        permissionCheck: isScript ? this._newPermissionCheck : undefined,
+      }
     );
   }
 
@@ -130,6 +147,31 @@ class DialogAutomationMode
               `
             : nothing
         }
+        ${
+          this._params.domain === "script" || "sequence" in this._params.config
+            ? html`
+                <div class="permission-check">
+                  <wa-divider></wa-divider>
+                  <ha-settings-row>
+                    <span slot="heading">
+                      ${this.hass.localize(
+                        "ui.panel.config.script.editor.permission_check"
+                      )}
+                    </span>
+                    <span slot="description">
+                      ${this.hass.localize(
+                        "ui.panel.config.script.editor.permission_check_description"
+                      )}
+                    </span>
+                    <ha-switch
+                      .checked=${this._newPermissionCheck}
+                      @change=${this._permissionCheckChanged}
+                    ></ha-switch>
+                  </ha-settings-row>
+                </div>
+              `
+            : nothing
+        }
 
         <ha-dialog-footer slot="footer">
           <ha-button
@@ -161,7 +203,14 @@ class DialogAutomationMode
     } else if (!this._newMax) {
       this._newMax = AUTOMATION_DEFAULT_MAX;
     }
-    this._updateDirtyState({ mode: this._newMode, max: this._newMax });
+    const isScript =
+      this._params?.domain === "script" ||
+      (this._params?.config && "sequence" in this._params.config);
+    this._updateDirtyState({
+      mode: this._newMode,
+      max: this._newMax,
+      permissionCheck: isScript ? this._newPermissionCheck : undefined,
+    });
   }
 
   private _valueChanged(ev: InputEvent) {
@@ -169,19 +218,48 @@ class DialogAutomationMode
     const target = ev.target as HaInput;
     if (target.name === "max") {
       this._newMax = Number(target.value);
-      this._updateDirtyState({ mode: this._newMode, max: this._newMax });
+      const isScript =
+        this._params?.domain === "script" ||
+        (this._params?.config && "sequence" in this._params.config);
+      this._updateDirtyState({
+        mode: this._newMode,
+        max: this._newMax,
+        permissionCheck: isScript ? this._newPermissionCheck : undefined,
+      });
     }
+  }
+
+  private _permissionCheckChanged(ev: Event) {
+    this._newPermissionCheck = (ev.target as HaSwitch).checked;
+    const isScript =
+      this._params?.domain === "script" ||
+      (this._params?.config && "sequence" in this._params.config);
+    this._updateDirtyState({
+      mode: this._newMode,
+      max: this._newMax,
+      permissionCheck: isScript ? this._newPermissionCheck : undefined,
+    });
   }
 
   private _save(): void {
     if (!this._params) {
       return;
     }
-    this._params.updateConfig({
+    const isScript =
+      this._params.domain === "script" || "sequence" in this._params.config;
+    const newConfig: any = {
       ...this._params.config,
       mode: this._newMode,
       max: this._newMax,
-    });
+    };
+    if (isScript) {
+      if (this._newPermissionCheck === false) {
+        newConfig.permission_check = false;
+      } else {
+        delete newConfig.permission_check;
+      }
+    }
+    this._params.updateConfig(newConfig);
     this.closeDialog();
   }
 
@@ -190,7 +268,8 @@ class DialogAutomationMode
       haStyle,
       haStyleDialog,
       css`
-        .max-value {
+        .max-value,
+        .permission-check {
           margin-top: var(--ha-space-3);
         }
         ha-wa-dialog ha-icon-button[slot="headerActionItems"] {

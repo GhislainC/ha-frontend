@@ -40,6 +40,8 @@ export default class HaAutomationActionEditor extends LitElement {
   @property({ type: Boolean, attribute: "supported" }) public uiSupported =
     false;
 
+  @property({ attribute: false }) public domain?: "automation" | "script";
+
   @query("ha-yaml-editor") public yamlEditor?: HaYamlEditor;
 
   @query(COLLAPSIBLE_ACTION_ELEMENTS.join(", "))
@@ -90,6 +92,7 @@ export default class HaAutomationActionEditor extends LitElement {
                     optionsInSidebar: this.indent,
                     indent: this.indent,
                     inSidebar: this.inSidebar,
+                    domain: this.domain,
                   })}
                 </div>
               `

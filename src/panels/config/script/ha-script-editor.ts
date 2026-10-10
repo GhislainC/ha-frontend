@@ -939,6 +939,7 @@ export class HaScriptEditor extends SubscribeMixin(
     return new Promise((resolve) => {
       showAutomationModeDialog(this, {
         config: this.config!,
+        domain: "script",
         updateConfig: (config) => {
           this.config = config;
           this._updateDirtyState({

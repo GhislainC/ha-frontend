@@ -78,6 +78,8 @@ export default class HaAutomationOptionRow extends LitElement {
   @property({ type: Boolean, attribute: "sort-selected" })
   public sortSelected = false;
 
+  @property({ attribute: false }) public domain?: "automation" | "script";
+
   @state() private _expanded = false;
 
   @state() private _selected = false;
@@ -375,6 +377,7 @@ export default class HaAutomationOptionRow extends LitElement {
         .narrow=${this.narrow}
         @value-changed=${this._actionChanged}
         .optionsInSidebar=${this.optionsInSidebar}
+        .domain=${this.domain}
       ></ha-automation-action>
     </div>`;
   }

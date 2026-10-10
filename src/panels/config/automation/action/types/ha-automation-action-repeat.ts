@@ -40,6 +40,8 @@ export class HaRepeatAction extends LitElement implements ActionElement {
 
   @property({ type: Boolean, attribute: "indent" }) public indent = false;
 
+  @property({ attribute: false }) public domain?: "automation" | "script";
+
   @query("ha-form")
   private _formElement?: HaForm;
 
@@ -52,7 +54,8 @@ export class HaRepeatAction extends LitElement implements ActionElement {
       type: RepeatType,
       template: boolean,
       inSidebar: boolean,
-      indent: boolean
+      indent: boolean,
+      domain?: "automation" | "script"
     ) =>
       [
         ...(type === "count" && (inSidebar || (!inSidebar && !indent))
@@ -95,6 +98,7 @@ export class HaRepeatAction extends LitElement implements ActionElement {
                 selector: {
                   action: {
                     optionsInSidebar: indent,
+                    domain,
                   },
                 },
               },
@@ -112,7 +116,8 @@ export class HaRepeatAction extends LitElement implements ActionElement {
         ? isTemplate(action.count)
         : false,
       this.inSidebar,
-      this.indent
+      this.indent,
+      this.domain
     );
 
     const data = { ...action, type };

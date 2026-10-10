@@ -6516,6 +6516,13 @@
             },
             "migrate": "Migrate",
             "duplicate": "[%key:ui::common::duplicate%]",
+            "permission_check": "Permission check",
+            "permission_check_description": "Check permissions when executed by non-administrative users. If disabled, actions run with elevated system privileges.",
+            "actions": {
+              "permission_check": "Permission check",
+              "permission_check_bypassed": "Permission check bypassed",
+              "permission_check_bypass_description": "Permission checks are bypassed for this action step."
+            },
             "field": {
               "name": "[%key:ui::common::name%]",
               "key": "Field key",

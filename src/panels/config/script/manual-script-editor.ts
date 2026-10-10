@@ -7,6 +7,7 @@ import {
   any,
   array,
   assert,
+  boolean,
   enums,
   number,
   object,
@@ -51,6 +52,7 @@ const scriptConfigStruct = object({
   max: optional(number()),
   fields: optional(object()),
   variables: optional(object()),
+  permission_check: optional(boolean()),
 });
 
 @customElement("manual-script-editor")
@@ -162,6 +164,7 @@ export class HaManualScriptEditor extends ManualEditorMixin<ScriptConfig>(
       .editorDirty=${this.dirty}
       .narrow=${this.narrow}
       .disabled=${this.disabled || this.saving}
+      .domain=${"script"}
       root
       sidebar
     ></ha-automation-action>
